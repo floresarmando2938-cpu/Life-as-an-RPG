@@ -23,25 +23,26 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.x'
+          flutter-version: '3.24.x'
           channel: 'stable'
           cache: true
 
-      - name: Generate clean Flutter Android skeleton
+      - name: Generate modern Flutter Android skeleton
         run: |
           flutter create --org com.example --platforms android abby_clean
           cp -r abby_clean/android mobile/
           cp mobile/AndroidManifest_custom.xml mobile/android/app/src/main/AndroidManifest.xml
           rm -rf abby_clean
 
-      - name: Configure Android Gradle Settings
-        working-directory: mobile/android/app
+      - name: Configure Android SDK and Kotlin versions
+        working-directory: mobile/android
         run: |
-          sed -i 's/minSdkVersion .*/minSdkVersion 24/g' build.gradle
-          sed -i 's/compileSdkVersion .*/compileSdkVersion 34/g' build.gradle
-          sed -i 's/targetSdkVersion .*/targetSdkVersion 34/g' build.gradle
-          # Ignorar warnings/deprecations como errores fatales en Gradle
-          echo "allprojects { gradle.projectsEvaluated { tasks.withType(JavaCompile) { options.compilerArgs << '-Xlint:-deprecation' << '-Xlint:-unchecked' } } }" >> ../build.gradle
+          # Actualizar Kotlin a 2.0.0 y compileSdk a 34
+          sed -i 's/id "org.jetbrains.kotlin.android" version "[^"]*"/id "org.jetbrains.kotlin.android" version "2.0.0"/' settings.gradle || true
+          sed -i 's/ext.kotlin_version = .*/ext.kotlin_version = "2.0.0"/' build.gradle || true
+          sed -i 's/compileSdkVersion .*/compileSdkVersion 34/g' app/build.gradle
+          sed -i 's/minSdkVersion .*/minSdkVersion 24/g' app/build.gradle
+          sed -i 's/targetSdkVersion .*/targetSdkVersion 34/g' app/build.gradle
 
       - name: Install Dependencies
         working-directory: mobile
