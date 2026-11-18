@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.env
+.venv/
+env/
+venv/
+*.mp3
+
+# Flutter / Dart
+.dart_tool/
+.packages
+build/
+android/.gradle
+android/captures/
+android/gradlew
+android/gradlew.bat
+android/local.properties
+ios/.generated/
+*.apk
+*.aab
+
+# Credentials & secrets
+credentials.json
+credentials.json.json
+token.json
