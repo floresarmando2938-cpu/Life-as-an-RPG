@@ -27,21 +27,30 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Recreate Android Project Wrapper if missing
-        working-directory: mobile
+      - name: Setup Full Android Flutter Template
         run: |
-          if [ ! -f "android/build.gradle" ]; then
-            echo "Inicializando wrapper de Flutter Android..."
-            flutter create . --platforms=android --org=com.example --project-name=abby
-          fi
+          mkdir temp_app
+          cd temp_app
+          flutter create --org com.example --platforms android abby
+          cd ..
+          # Copiar la estructura nativa completa de Android al directorio mobile
+          cp -r temp_app/abby/android/* mobile/android/ || true
+          rm -rf temp_app
 
       - name: Install Dependencies
         working-directory: mobile
         run: flutter pub get
 
+      - name: Adjust Android SDK min & compile versions
+        working-directory: mobile/android/app
+        run: |
+          sed -i 's/minSdkVersion .*/minSdkVersion 24/g' build.gradle || true
+          sed -i 's/compileSdkVersion .*/compileSdkVersion 34/g' build.gradle || true
+          sed -i 's/targetSdkVersion .*/targetSdkVersion 34/g' build.gradle || true
+
       - name: Build APK (Release)
         working-directory: mobile
-        run: flutter build apk --release
+        run: flutter build apk --release --no-tree-shake-icons
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
